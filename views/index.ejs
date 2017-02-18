@@ -1,0 +1,76 @@
+<html>
+	<head>
+		<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" rel="stylesheet">	
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />	
+	</head>
+	<body>
+		<nav class="navbar">			
+		</nav>
+		<div class="container">
+		<section id="section1" class="panel panel-default">
+			<div class="panel-heading">
+			<div class="container">
+	    		<h2 class="panel-title">Posting a file image to Amazon S3 - Przemyslaw Zaworski</h2>
+	    		</div>
+		  	</div>
+	  		<div class="panel-body">
+	<form action="https://<%=bucket%>.s3.amazonaws.com/" method="POST" id="sign-up-form" class="form-horizontal" enctype="multipart/form-data">		
+	<div class="container">
+	<% fields.forEach(function(elem){ %>
+	  <input type="hidden" name="<%= elem.name  %>" value="<%=elem.value %>"/>
+		<%}); %> 	   
+	<div class="col-xs-5">
+	<div class="form-group">
+    	<label for="exampleInputFile">Choose file images</label>
+    	<input type="file" name="file" accept="image/*">
+    	<p class="help-block">File will be send to the bucket <%=bucket%></p>
+    </div>	
+	</div>
+	</div>	
+	<div class="container">
+	<div class="col-xs-3">
+	<input type="submit" class="btn  btn-primary btn-block" value="Send"/>
+	<br/>
+	<div>
+	<ul id="list">
+		<% for(var i=1; i<files.length; i++) {%>
+		<li><%= files[i].Key %> <input type="checkbox"></li>
+		<% } %>
+	</ul>
+
+	</div>
+	</div>
+	</div>
+	</form>
+	  		</div>
+			<footer class="panel-footer">	
+			<button id="processBtn" class="btn btn-primary">Process</button>
+			<script>
+				processBtn.onclick = function() {
+					console.log("wszystko OK");
+
+					var lis = $('#list')[0].children;
+					var files = "";
+					
+					for(var i=0; i<lis.length; ++i)
+					{
+						if (lis[i].children[0].checked === true) {
+							files += lis[i].innerText.trim() + ",";
+						}
+					}
+
+					$.ajax({
+					type: "POST",
+					url: "/addToSQS",
+					data: {files : files},
+					success: function() {console.log("success")},
+					dataType: "json"
+					});
+				};
+			</script>		
+			</footer>
+	</section>
+	</div>		
+	</body>
+</html>
